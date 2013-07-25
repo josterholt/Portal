@@ -1,0 +1,32 @@
+<div class="module">
+	<ul class="unstyled">
+		<li ng-repeat="post in posts">
+			<a href='#' class='pull-left'><img src="{{post.user.photo}}"></a>
+			<div id="inner-content">
+				<h5>{{post.user.first_name}} {{post.user.last_name}}</h5>
+				<h5>{{post.body}}</h5>
+				<div> -- Media -- </div>
+				<div>
+					<small><a href='#'>Like</a></small> - <small><a href='#'>Comment</a></small> - <small><a href='#'>Share</a></small> - <small>{{post.pub_date}}</small>
+				</div>
+				<!-- Comments -->
+				<div>
+					<ul  style="margin: 0;">
+						<li ng-repeat="comment in post.comments" class="media">
+						<a href='#' class='pull-left'><img src="{{comment.user.photo"></a>
+							<a href="#">{{comment.user.first_name}} {{comment.user.last_name}}</a>
+							<span>{{comment.body}}</span>
+					</li>
+					</ul>
+				</div>
+
+				<!-- Comment Box -->
+				<div>
+					<form novalidate class="simple-form">
+						<textarea on-keyup="savecomment" post="{{post._id}}" name="body"></textarea>
+					</form>
+				</div>
+			</div>
+		</li>
+	</ul>
+</div>

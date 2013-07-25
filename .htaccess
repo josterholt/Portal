@@ -1,0 +1,2 @@
+RewriteEngine On
+RewriteRule api/(.*)	mongo_proxy.php

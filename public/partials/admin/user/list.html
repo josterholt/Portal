@@ -1,0 +1,6 @@
+<div ng-include src="'partials/admin/navigation.html'"></div>
+<ul>
+	<li ng-repeat="record in records">
+		<a href='/#/admin/user/{{record._id}}'>{{record.first_name}} {{record.last_name}}</a>
+	</li>
+</ul>

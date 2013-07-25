@@ -1,0 +1,36 @@
+<div ng-include src="'partials/admin/navigation.html'"></div>
+<form class="form-horizontal">
+	<div class="control-group">
+		<label class="control-label" for="input-first_name">First&nbsp;Name</label>
+		<div class="controls">
+			<input name="first_name" id="input-first_name" type="text" ng-model="record.first_name" /> 
+		</div>
+	</div>
+
+	<div class="control-group">
+		<label class="control-label" for="input-last_name">Last&nbsp;Name</label>
+		<div class="controls">
+			<input name="last_name" id="input-last_name" type="text" ng-model="record.last_name" /> 
+		</div>
+	</div>
+
+	<div class="control-group">
+		<label class="control-label" for="input-photo">Photo</label>
+		<div class="controls">
+			<input name="photo" id="input-photo" type="text" ng-model="record.photo" /> 
+		</div>
+	</div>	
+
+	<!-- <div class="control-group">
+		<label class="control-label" for="input-_facebook_id">Facebook&nbsp;ID</label>
+		<div class="controls">
+			<input name="_facebook_id" id="input-facebook_id" type="text" ng-model="record._facebook_id" /> 
+		</div>
+	</div> -->
+
+	<div class="control-group">
+		<div class="controls">
+			<button type="submit" class="btn" ng-click="save()">Save</button>
+		</div>
+	</div>
+</form>
