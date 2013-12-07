@@ -1,4 +1,7 @@
-#!/usr/bin/sh
-sudo mongod --repair --dbpath /var/lib/mongodb
-sudo chown -R mongodb:mongodb /var/lib/mongodb
-sudo service mongodb start
+#!/bin/bash
+
+mongod --repair --dbpath /var/lib/mongodb
+
+chown -R mongodb:mongodb /var/lib/mongodb
+
+service mongodb start

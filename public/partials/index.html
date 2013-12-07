@@ -1,6 +1,7 @@
 <ul class="nav nav-tabs">
+    <li ng-repeat="topic in topics"><a href="#/topic/{{topic.code}}">{{topic.title}}</a></li>
 	<li><a href='/#/profile'>Profile</a></li>
 </ul>
-<div status-list>
+<div status-list src=posts>
 	{{module.content}}
 </div>

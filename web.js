@@ -1,9 +1,11 @@
- var express = require('express');
-var port = process.env.PORT || 5000;
-var app = module.exports = express();
+var express = require('express'),
+    port = process.env.PORT || 5000,
+    app = module.exports = express(),
+    crypto = require('crypto');
+
 
 var async = require("async");
-
+var MongoStore = require("connect-mongo")(express);
 var Entities = require('./entities.js');
 
 /**
@@ -23,13 +25,21 @@ app.use(express.static(__dirname + '/public'));
 
 // session support
 app.use(express.cookieParser('some secret here'));
-app.use(express.session());
+app.use(express.session({
+	secret: 'test1234',
+	maxAge: new Date(Date.now() + 3600000),
+	store: new MongoStore({
+		db: 'portal',
+		host: 'localhost'
+	})
+}));
 
 /**
 *  Facebook init
 */
 var Facebook = require('facebook-node-sdk');
-app.use(Facebook.middleware({ appId: process.env.FACEBOOK_APPID, secret: process.env.FACEBOOK_SECRET }));
+
+app.use(Facebook.middleware({ appId: '217293819917', secret: '1699a6a5a690aa1fe197647fa0d27856' }));
 
 /**
 * Routing
@@ -85,8 +95,12 @@ function requireUser(req, res) {
  *  Public facing pages
  *  @todo add bcrypt hash comparison
  */
-app.get('/login', function (req, res) {
-	Entities.user.findOne({ email: req.body.email, password: enc_pass }, function (err, doc) {
+app.post('/login', function (req, res) {
+	var hash = crypto.createHash('md5');
+	var password = hash.update(req.body.password);
+	console.log(password.digest('hex'));
+
+	Entities.user.findOne({ email: req.body.email, password: password }, function (err, doc) {
 		if(err)
 		{
 			res.send({ status: "FAIL" })
@@ -136,8 +150,14 @@ app.post('/services/profile', function(req, res) {
 	Entities.user.findById(req.session.user._id, function (err, doc) {
 		doc.first_name = req.body.first_name;
 		doc.last_name  = req.body.last_name;
-		//doc._facebook_id      = req.params._facebook_id;
 		doc.photo      = req.body.photo;
+
+		if(req.body.password != '' && req.body.password != undefined)
+		{
+			var hash = crypto.createHash('md5');
+			var password = hash.update(req.body.password);
+			doc.password = password.digest('hex')
+		}
 
 		doc.save(function (err) {
 			if(err) {
@@ -149,6 +169,24 @@ app.post('/services/profile', function(req, res) {
 	});
 });
 
+app.get('/services/post', function(req, res) {
+	// Require user session
+	if(!requireUser(req, res)) {
+		return false;
+	}
+
+	if(req.query.tags == undefined) {
+		Entities['post'].find().sort('field -create_date').populate('user comments.user tags').exec(function (err, docs) {
+			res.send(docs);
+		})	
+	} else {
+		Entities['tag'].find({ "code": req.query.tags }).exec(function(err, tags) {
+			Entities['post'].find({"tags": tags[0]._id }).sort('field -create_date').populate('user comments.user tags').exec(function (err, posts) {
+				res.send(posts);
+			})			
+		})
+	}
+});
 /**
  * @todo Check to make sure content is public
  */
@@ -157,7 +195,7 @@ app.get('/services/:type', function(req, res) {
 	if(!requireUser(req, res)) {
 		return false;
 	}
-
+	
 	var assoc_keys = [];
 
 	for(key in Entities[req.params.type].schema.paths)
@@ -173,7 +211,7 @@ app.get('/services/:type', function(req, res) {
 		assoc_keys.push(Entities[req.params.type].schema.virtuals[key].path);
 	}
 
-	Entities[req.params.type].find().sort('field -create_date').execFind(function (err, docs) {
+	Entities[req.params.type].find(req.params.criteria).sort('field -create_date').execFind(function (err, docs) {
 		res.send(docs);
 	})
 });
@@ -240,27 +278,60 @@ app.post('/services/:type/:id?', function(req, res) {
 		});
 	} else {
 		var doc = new Entities[req.params.type]();
-		for(key in req.body)
-		{
-			doc[key] = req.body[key];
-		}
+		var schema = Entities[req.params.type].schema;
+		var tag = null;
 		
-		if(Entities[req.params.type].schema.paths.hasOwnProperty('user'))
-		{
-			doc.user = req.session.user._id;
-		}
-		
-		if(Entities[req.params.type].schema.paths.hasOwnProperty('create_date'))
-		{
-			doc.create_date = new Date();
-		}
-
-		doc.save(function (err) {
-			if(err) {
-				console.log(err);
+		async.series([function (callback) {
+			// Hacky preemptive caching
+			console.log('hack');
+			if(req.body.tags != undefined) {
+				console.log('testing');
+				Entities['tag'].find({ "code": req.body.tags }).exec(function(err, tags) {
+					tag = tags[0];
+					console.log('Inside first function');
+					console.log(tag);
+					callback(null);
+				});					
 			}
-			res.send(doc);
-		});	
+		},
+		function (callback) {
+			console.log('Inside second function');
+			console.log(tag);
+			for(key in req.body)
+			{
+				if(schema.paths[key].instance == 'ObjectID' && key != '_id')
+				{
+					if(key == 'tags') {
+						if(tag != null) {
+							doc[key] = tag;
+						}
+					} else {
+						console.log('Unsupported assoc property')
+					}
+				} else {
+					doc[key] = req.body[key];				
+				}
+			}
+			
+			if(Entities[req.params.type].schema.paths.hasOwnProperty('user'))
+			{
+				doc.user = req.session.user._id;
+			}
+					
+			if(Entities[req.params.type].schema.paths.hasOwnProperty('create_date'))
+			{
+				doc.create_date = new Date();
+			}
+			console.log(doc);
+			
+			doc.save(function (err) {
+				if(err) {
+					console.log(err);
+				}
+				res.send(doc);
+				callback(null);
+			});
+		}]);
 	}
 });
 

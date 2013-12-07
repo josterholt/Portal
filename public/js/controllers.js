@@ -16,18 +16,11 @@ config(function($routeProvider, $httpProvider) {
 		controller: AdminHomeCtrl,
 		templateUrl: 'partials/admin/index.html'
 	}).
-	/*
-	when('/admin/:type',
+	when('/topic/:topic',
 	{
-		controller: AdminUserListCtrl,
-		templateUrl: 'partials/admin/list.html'
+		controller: TopicCtrl,
+		templateUrl: 'partials/index.html'
 	}).
-	when('/admin/:type/:id',
-	{
-		controller: AdminUserDetailCtrl,
-		templateUrl: 'partials/admin/detail.html'
-	}).
-	*/
 	when('/profile', 
 	{
 		controller: ProfileCtrl,
@@ -75,32 +68,21 @@ config(function($routeProvider, $httpProvider) {
 		}
 	}];
 	$httpProvider.responseInterceptors.push(interceptor);
-
-	/*
-	var interceptor2 = ['$rootScope', '$q', function (scope, $q) {
-		function success(response) {
-			console.debug(response);
-			return response;
-		}
-
-		function error(response) {
-			return response;
-		}
-
-		return function(promise) {
-			return promise.then(success, error);
-		}
-	}];
-	$httpProvider.responseInterceptors.push(interceptor2);
-	*/
 })
 .run(['$rootScope', '$http', '$location', function(scope, $http, $location) {
 	scope.requests401 = [];
+	
+	// Breeze config (should be added as a service)
+	breeze.config.initializeAdapterInstance("modelLibrary", "backingStore", true);
+	breeze.NamingConvention.camelCase.setAsDefault();
+	var manager = new breeze.EntityManager("/services");
+	manager.dataService.hasServerMetadata = false;
 
+	
 	// Login modal added to root scope
 	scope.openMessageBox = function () {
 		$("#login-modal").modal({ show: true });
-	}	
+	}
 
 	/**
 	 * Login Required
@@ -155,34 +137,36 @@ config(function($routeProvider, $httpProvider) {
 	  * Checks to see if user is logged in
 	  */
 	 function ping() {
+		 /*
 	 	$http.get('services/ping').success(function () {
 	 		scope.$broadcast('event:loginConfirmed');
 	 	});
+	 	*/
 	 }
 	 ping();
 }])
-.factory('Session', function () {
-	var Session = {
-		id: 1234,
-		data: {}
-	}
-	return Session;
-})
-.directive('statusList', function (Post, $http) {
+.directive('statusList', function (Post, $http, $routeParams) {
 	return {
 		restrict: 'A',
 		scope: {
-			title: '@'
+			title: '@',
+			posts: "=src"
 		},
 		templateUrl: 'partials/status/list.html',
 		transclude: true,
-		link: function ($scope, element, attrs) 
+		link: function ($scope, elements, attrs) 
 		{
-			$scope.posts = Post.query(function () {
-				console.debug("Foo");
-			});
+
 			$scope.savecomment = function (frm) {
-				$http.post('/services/comment', { post: frm.elements["body"].getAttribute("post"), comment: frm.elements["body"].value })
+				$http.post('/services/comment', { post: frm.elements["body"].getAttribute("post"), comment: frm.elements["body"].value });
+				frm.elements['body'].value = '';
+				
+				var criteria = { };
+				if($routeParams.topic !== undefined )
+				{
+					criteria['tags'] = $routeParams.topic;
+				}
+				$scope.posts = Post.query(criteria);
 			}
 		}
 	};
@@ -213,10 +197,66 @@ config(function($routeProvider, $httpProvider) {
 		});
 	}
 })
-.run(function (Profile) {});
+.directive('postWidget', function (Post, $http, $routeParams) {
+	return {
+		restrict: 'A',
+		link: function ($scope, elements, attrs) {
+			var shift_down = false;
+	
+			elements.bind('keyup', function (evt) {
+				// Submit on enter (13) unless shift is held
+				if(13 == evt.which && shift_down == false)
+				{
+					$scope.$apply(function () {
+						$scope.savePost(elements[0]);
+					})
+				} else if (evt.which == 16) {
+					shift_down = false;
+				}
+			});
+	
+			elements.bind('keydown', function (evt) {
+				// Flag shift (16) as down
+				if(16 == evt.which)
+				{
+					shift_down = true;
+				}
+			});
+	
+			$scope.savePost = function (frm) {
+				var post = {
+					body: frm.elements["body"].value 
+				}
+				if($routeParams.topic !== undefined )
+				{
+					post['tags'] = $routeParams.topic;
+				}
+				$http.post('/services/post', post);
+				
+				var criteria = { };
+				if($routeParams.topic !== undefined )
+				{
+					criteria['tags'] = $routeParams.topic;
+				}
+				console.debug('getting posts');
+				console.debug($scope.posts);
+				$scope.posts = Post.query(criteria);
+			}
+		}
+	}
+})
 
-function HomeCtrl($scope, $routeParams) {
+function PortalCtrl($scope, $routeParams, Topic) {
+	$scope.topics = Topic.query();
+}
 
+function HomeCtrl($scope, $routeParams, Post) {
+	$scope.posts = Post.query();
+}
+
+function TopicCtrl($scope, $routeParams, Post) {
+	$scope.posts = Post.query({ tags: $routeParams.topic });
+	//$scope.posts = Post.query();
 }
 
 function ProfileCtrl($scope, $routeParams, Profile ) {
@@ -244,10 +284,15 @@ function AdminUserListCtrl($scope, $routeParams, User) {
 
 function AdminUserDetailCtrl($scope, $routeParams, User) {
 	
-	$scope.record = User.get({ id: $routeParams.id });
+	 var user = User.get({ id: $routeParams.id });
+	 $scope.record = user;
 
 	$scope.save = function () {
-		console.debug("testing");
+		user.password = CryptoJS.MD5(user.password);
+		console.debug(user.password);
+		user.update(function (obj, res) {
+			console.debug(res);
+		});
 	}
 
 	$scope.debug = function () {

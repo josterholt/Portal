@@ -15,6 +15,13 @@
 	</div>
 
 	<div class="control-group">
+		<label class="control-label" for="input-password">Password</label>
+		<div class="controls">
+			<input name="password" id="input-password" type="password" ng-model="record.password" /> 
+		</div>
+	</div>
+
+	<div class="control-group">
 		<label class="control-label" for="input-_facebook_id">Facebook&nbsp;ID</label>
 		<div class="controls">
 			<input name="_facebook_id" id="input-facebook_id" type="text" ng-model="record._facebook_id" /> 
@@ -27,5 +34,3 @@
 		</div>
 	</div>
 </form>
-
-<button class="btn" ng-click="debug()" >Debug</button>
