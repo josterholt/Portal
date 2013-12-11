@@ -8,6 +8,9 @@ nconf.argv()
 	.env()
 	.file({ file: 'conf/app.json' });;
 
+var DB_URI = nconf.get('MONGOLAB_URI');
+
+
 
 var async = require("async");
 var MongoStore = require("connect-mongo")(express);

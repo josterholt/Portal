@@ -2,15 +2,14 @@
 * Mongoose and Entity init
 */
 var mongoose = require('mongoose'),
-    Schema = mongoose.Schema,
-    nconf = require("nconf");
-
+    Schema = mongoose.Schema;
+var nconf = require('nconf');
 nconf.argv()
-.env()
-.file({ file: 'conf/db.json' });
+	.env()
+	.file({ file: 'conf/app.json' });;
 
 var DB_URI = nconf.get('MONGOLAB_URI');
-console.log(DB_URI);
+
 mongoose.connect(DB_URI, function(err, res) {
 	if(err) {
 		console.log('Error connecting to DB.' + err);
