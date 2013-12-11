@@ -9,9 +9,10 @@ nconf.argv()
 .env();
 
 var options = {
-	db: nconf.get('database'),
-	user: nconf.get('user'),
-	pass: nconf.get('password')
+	db: nconf.get('DATABASE'),
+	server: nconf.get('HOST'),
+	user: nconf.get('USER'),
+	pass: nconf.get('PASSWORD')
 }
 
 mongoose.connect('mongodb://localhost/portal', options, function(err, res) {
