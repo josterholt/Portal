@@ -5,7 +5,8 @@ var express = require('express'),
 
 var nconf = require('nconf');
 nconf.argv()
-	.env();
+	.env()
+	.file({ file: 'conf/app.json' });;
 
 
 var async = require("async");
@@ -340,4 +341,4 @@ app.post('/services/:type/:id?', function(req, res) {
 });
 
 
-app.listen(3000);
+app.listen(nconf.get("PORT"));
