@@ -6,16 +6,12 @@ var mongoose = require('mongoose'),
     nconf = require("nconf");
 
 nconf.argv()
-.env();
+.env()
+.file({ file: 'conf/db.json' });
 
-var options = {
-	db: nconf.get('DATABASE'),
-	server: nconf.get('HOST'),
-	user: nconf.get('USER'),
-	pass: nconf.get('PASSWORD')
-}
+var DB_URI = nconf.get('MONGOLAB_URI');
 
-mongoose.connect('mongodb://localhost/portal', options, function(err, res) {
+mongoose.connect(DB_URI, function(err, res) {
 	if(err) {
 		console.log('Error connecting to DB.' + err);
 	} else {
