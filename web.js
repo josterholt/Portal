@@ -8,10 +8,6 @@ nconf.argv()
 	.env()
 	.file({ file: 'conf/app.json' });;
 
-var DB_URI = nconf.get('MONGOLAB_URI');
-
-
-
 var async = require("async");
 var MongoStore = require("connect-mongo")(express);
 var Entities = require('./entities.js');
@@ -37,8 +33,7 @@ app.use(express.session({
 	secret: 'test1234',
 	maxAge: new Date(Date.now() + 3600000),
 	store: new MongoStore({
-		db: 'portal',
-		host: 'localhost'
+		url: nconf.get('MONGOLAB_URI')
 	})
 }));
 
