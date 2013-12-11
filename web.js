@@ -3,6 +3,10 @@ var express = require('express'),
     app = module.exports = express(),
     crypto = require('crypto');
 
+var nconf = require('nconf');
+nconf.argv()
+	.env();
+
 
 var async = require("async");
 var MongoStore = require("connect-mongo")(express);

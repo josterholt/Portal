@@ -9,6 +9,7 @@
 		"mongoose": "*",
 		"facebook-node-sdk": "*",
 		"connect": "*",
-		"connect-mongo": "*"
+		"connect-mongo": "*",
+		"nconf": "*"
 	}
 }

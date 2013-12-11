@@ -2,9 +2,19 @@
 * Mongoose and Entity init
 */
 var mongoose = require('mongoose'),
-    Schema = mongoose.Schema;
+    Schema = mongoose.Schema,
+    nconf = require("nconf");
 
-mongoose.connect('mongodb://localhost/portal', function(err, res) {
+nconf.argv()
+.env();
+
+var options = {
+	db: nconf.get('database'),
+	user: nconf.get('user'),
+	pass: nconf.get('password')
+}
+
+mongoose.connect('mongodb://localhost/portal', options, function(err, res) {
 	if(err) {
 		console.log('Error connecting to DB.' + err);
 	} else {
