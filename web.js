@@ -33,7 +33,8 @@ app.use(express.session({
 	secret: 'test1234',
 	maxAge: new Date(Date.now() + 3600000),
 	store: new MongoStore({
-		url: nconf.get('MONGOLAB_URI')
+		url: nconf.get('MONGOLAB_URI'),
+		auto_reconnect: true
 	})
 }));
 
