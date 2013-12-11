@@ -10,7 +10,7 @@ nconf.argv()
 .file({ file: 'conf/db.json' });
 
 var DB_URI = nconf.get('MONGOLAB_URI');
-
+console.log(DB_URI);
 mongoose.connect(DB_URI, function(err, res) {
 	if(err) {
 		console.log('Error connecting to DB.' + err);
