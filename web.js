@@ -288,7 +288,9 @@ app.post('/services/:type/:id?', function(req, res) {
 		async.series([function (callback) {
 			// Hacky preemptive caching
 			console.log('hack');
-			if(req.body.tags != undefined) {
+			if(req.body.tags == undefined) {
+				callback(null);
+			} else {
 				console.log('testing');
 				Entities['tag'].find({ "code": req.body.tags }).exec(function(err, tags) {
 					tag = tags[0];
@@ -339,5 +341,5 @@ app.post('/services/:type/:id?', function(req, res) {
 	}
 });
 
-
+console.log("Listing to " + nconf.get("PORT"));
 app.listen(nconf.get("PORT"));
