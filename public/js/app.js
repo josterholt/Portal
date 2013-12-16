@@ -160,10 +160,12 @@ config(function($routeProvider, $httpProvider) {
 			})
 			
 			$scope.savecomment = function (frm) {
-				$http.post('/services/comment', { post: frm.elements["body"].getAttribute("post"), comment: frm.elements["body"].value });
+				$http.post('/services/comment', { post: frm.elements["body"].getAttribute("post"), comment: frm.elements["body"].value })
+					.then(function () {
+						Feed.reload();
+						$scope.posts = Feed.posts;
+					});
 				frm.elements['body'].value = '';
-				Feed.reload();
-				$scope.posts = Feed.posts;
 			}
 		}
 	};
