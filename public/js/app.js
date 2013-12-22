@@ -1,7 +1,7 @@
 angular.module('GamePortal', ['mongolab', 'ngRoute', 'GamePortal.services', 'GamePortal.controllers', 'GamePortal.directives']).
 config(function($routeProvider, $httpProvider) {
 	$routeProvider.
-	when('/home/list', 
+	when('/', 
 	{
 		controller: 'HomeCtrl',
 		templateUrl: 'partials/index.html'
@@ -37,7 +37,7 @@ config(function($routeProvider, $httpProvider) {
 		templateUrl: 'partials/admin/user/detail.html'
 	}).
 	otherwise({
-		redirectTo: '/home/list' 
+		redirectTo: '/' 
 	});
 
 	// Interceptor
