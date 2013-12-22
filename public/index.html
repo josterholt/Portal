@@ -1,7 +1,6 @@
 <!doctype html>
 <html ng-app="GamePortal">
     <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.0.3/css/bootstrap.min.css" />
-    <link href="//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/css/bootstrap-combined.min.css" rel="stylesheet">
     <link href="/styles/main.css" rel="stylesheet">
     
     <!--  jQuery -->
@@ -16,11 +15,11 @@
 	<script src="js/controllers.js"></script>
 	<script src="js/services.js"></script>
 	<script src="js/directives.js"></script>
-	<script src="//netdna.bootstrapcdn.com/bootstrap/3.0.3/js/bootstrap.min.js"></script>
 	<script src="js/q.min.js"></script>
 	<script src="js/breeze.min.js"></script>
 	<script src="js/models.js"></script>
 	<script src="http://crypto-js.googlecode.com/svn/tags/3.1.2/build/rollups/md5.js"></script>
+    <script src="//netdna.bootstrapcdn.com/bootstrap/3.0.3/js/bootstrap.min.js"></script>
 	<style>
 	.form-horizontal .control-label {
 		width: 50px;
@@ -30,9 +29,37 @@
     }
 
 	</style>
-	<script src="//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/js/bootstrap.min.js"></script>
 </html>
 <body ng-controller="PortalCtrl">
+    <!-- Modal -->
+    <div id="login-modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" data-backdrop="static" data-keyboard="false">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                    <h3 id="myModalLabel">Login Required</h3>
+                </div>
+                <div class="modal-body">
+                    <p>
+                    <form >
+                        <label>Username</label>
+                        <input type="text" class="input-large" placeholder="Email" />
+                        <label>Password</label>
+                        <input type="password" class="input-large" placeholder="Password" />
+                        <label class="checkbox">
+                            <input type="checkbox"> Remember me
+                        </label>
+                        <button type="submit" class="btn">Sign in</button>
+                    </form>
+                    <hr />
+                    <h4>Sign in with</h4>
+                    <a href='/fb-login'><img src="/images/facebook-icon.jpg" border="0" /></a>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
     <div class="container">
         <div class="row">
             <div class="col-md-12">
@@ -53,30 +80,6 @@
         </div>
     </div>
 	
-	
-	<!-- Modal -->
-	<div id="login-modal" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" data-backdrop="static" data-keyboard="false">
-	  <div class="modal-header">
-	    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
-	    <h3 id="myModalLabel">Login Required</h3>
-	  </div>
-	  <div class="modal-body">
-	    <p>
-	    	<form >
-	    		<label>Username</label>
-	    		<input type="text" class="input-large" placeholder="Email" />
-	    		<label>Password</label>
-	    		<input type="password" class="input-large" placeholder="Password" />
-	    		<label class="checkbox">
-	    			<input type="checkbox"> Remember me
-	    		</label>
-	    		<button type="submit" class="btn">Sign in</button>
-	    	</form>
-	    	<hr />
-	    	<h4>Sign in with</h4>
-	    	<a href='/fb-login'><img src="/images/facebook-icon.jpg" border="0" /></a>
-	    </p>
-	  </div>
-	</div>
+
 </body>
 </html>

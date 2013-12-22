@@ -1,8 +1,21 @@
 'user strict';
 
 angular.module('GamePortal.controllers', [])
-.controller('PortalCtrl', ['$scope', '$routeParams', 'Topic', function ($scope, $routeParams, Topic) {
+.controller('PortalCtrl', ['$scope', '$routeParams', 'Topic', 'Feed', function ($scope, $routeParams, Topic, Feed) {
 	$scope.topics = Topic.query();
+	
+	$scope.getMediaTemplate = function (media) {
+		if(media == undefined) {
+			return null;
+		}
+		return 'partials/status/media/' + media.type.toLowerCase() + '.html';
+	}
+
+	$(window).scroll(function() {
+		   if($(window).scrollTop() + $(window).height() > $(document).height() - 75) {
+		       Feed.loadMore();
+		   }
+	});
 }])
 .controller('HomeCtrl', ['$scope', '$routeParams', 'Feed', function($scope, $routeParams, Feed) {
 	Feed.loadPosts();

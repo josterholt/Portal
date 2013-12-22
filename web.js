@@ -29,6 +29,8 @@ app.use(express.static(__dirname + '/public'));
 
 // session support
 app.use(express.cookieParser('some secret here'));
+
+console.log(nconf.get('MONGOLAB_URI'));
 app.use(express.session({
 	secret: 'test1234',
 	maxAge: new Date(Date.now() + 3600000),
@@ -179,15 +181,32 @@ app.get('/services/post', function(req, res) {
 		return false;
 	}
 
+	var max_records = 10,
+		offset      = 0;
+	
+	if(req.query.offset != undefined) {
+		offset = req.query.offset;
+	}
+	
 	if(req.query.tags == undefined) {
-		Entities['post'].find().sort('field -create_date').populate('user comments.user tags').exec(function (err, docs) {
-			res.send(docs);
-		})	
+		Entities['post'].find()
+			.sort('field -create_date')
+			.populate('user comments.user tags')
+			.skip(offset)
+			.limit(max_records)
+			.exec(function (err, docs) {
+				res.send(docs);
+			})	
 	} else {
 		Entities['tag'].find({ "code": req.query.tags }).exec(function(err, tags) {
-			Entities['post'].find({"tags": tags[0]._id }).sort('field -create_date').populate('user comments.user tags').exec(function (err, posts) {
-				res.send(posts);
-			})			
+			Entities['post'].find({"tags": tags[0]._id })
+				.sort('field -create_date')
+				.populate('user comments.user tags')
+				.skip(offset)
+				.limit(max_records)
+				.exec(function (err, posts) {
+					res.send(posts);
+				})			
 		})
 	}
 });
@@ -200,6 +219,7 @@ app.get('/services/:type', function(req, res) {
 		return false;
 	}
 	
+	console.log('Getting ' + req.params.type);
 	var assoc_keys = [];
 
 	for(key in Entities[req.params.type].schema.paths)

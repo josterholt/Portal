@@ -6,7 +6,7 @@
 			<div id="inner-content">
 				<h5>{{post.user.first_name}} {{post.user.last_name}}</h5>
 				<h5>{{post.body}}</h5>
-				<div> -- Media -- </div>
+				<div ng-include="getMediaTemplate(post.media)" post="{{post}}"></div>
 				<div>
 					<small><a href='#'>Like</a></small> - <small><a href='#'>Comment</a></small> - <small><a href='#'>Share</a></small> - <small>{{post.pub_date}}</small>
 				</div>
