@@ -68,15 +68,21 @@ function(accessToken, refreshToken, data, done) {
 	console.log('Callback function');
 
 	Entities.user.find({ facebook_id: data.id }, function (err, docs) {
+		console.log('User search 1 complete...');
+		console.log('Records found: ' + docs.length);
+
 		if(docs.length == 0)
 		{
 			// If it doesn't exist create new user. Make sure email is unique
+			console.log('User search 2...');
 			Entities.user.find({ email: data.email }, function (err, emailcheck) {
+				console.log('User search 2 complete...');
 				if(emailcheck.length != 0)
 				{
 					console.log('A user already exists with this e-mail');
 					// Throw error, user already exists
 				} else {
+					console.log('Creating new user...');
 					var user = new Entities.user({
 						first_name: data.first_name,
 						last_name: data.last_name,
@@ -84,6 +90,8 @@ function(accessToken, refreshToken, data, done) {
 						photo: 'http://graph.facebook.com/' + data.id + '/picture',
 						_facebook_id: data.id
 					})
+
+					console.log('Saving user...');
 					user.save(function (err) {
 						if(err) {
 							console.log("Error saving user");
