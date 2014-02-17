@@ -1,3 +1,11 @@
-<form novalidate post-widget class="form-inline simple-form">
-	<textarea post="{{post._id}}" name="body" class="form-control" placeholder="What's on your mind?"></textarea>
-</form>
+<div class="post-container">
+	<form name="post-form" novalidate post-widget class="form-inline simple-form">
+		<textarea post="{{post._id}}" name="body" ng-model="body" class="form-control" placeholder="What's on your mind?"></textarea>
+		<div class="image-container" ng-if="postMedia">
+			<iframe ng-if="postMediaType == 'VIDEO'" width="560" height="315" src="{{postMedia}}" frameborder="0" allowfullscreen></iframe>
+			<img ng-src="{{postMedia}}" ng-if="postMediaType == 'IMAGE'" />
+		</div>
+		<input type="submit" class="pull-right" ng-click="savePost()" />
+		<div class="clearfix"></div>
+	</form>
+</div>

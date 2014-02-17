@@ -75,15 +75,39 @@ angular.module('GamePortal.directives', [])
 					shift_down = true;
 				}
 			});
+			
+			elements.bind('input', function (evt) {
+				var input = evt.target.value;
+				if(input.indexOf("http://") != -1) {
+					r = /(http:\/\/[\S]*).*/;
+					
+					if(r.test(input) == true) {
+						var matches = r.exec(input);
+						var url = matches[1];
+						$scope.$apply(function () {
+							if(url.indexOf('youtube') != -1) {
+								$scope.postMedia = url;
+								$scope.postMediaType = "VIDEO";
+							} else {
+								$scope.postMedia = "/services/process-media?url=" + url;
+								$scope.postMediaType = "IMAGE";
+							}
+						})
+
+					}
+
+				}
+			});
 	
-			$scope.savePost = function (frm) {
+			$scope.savePost = function () {
 				var post = {
-					body: frm.elements["body"].value 
+					body: $scope.body 
 				}
 				if($routeParams.topic !== undefined )
 				{
 					post['tags'] = $routeParams.topic;
 				}
+
 				$http.post('/services/post', post);
 				
 				var criteria = { };
@@ -91,7 +115,7 @@ angular.module('GamePortal.directives', [])
 				{
 					criteria['tags'] = $routeParams.topic;
 				}
-				$("[name=body]").val("");
+				$scope.body = "";
 				Feed.reload();
 				$scope.posts = Feed.posts;
 			}

@@ -1,5 +1,10 @@
 angular.module('GamePortal', ['mongolab', 'ngRoute', 'GamePortal.services', 'GamePortal.controllers', 'GamePortal.directives']).
-config(function($routeProvider, $httpProvider) {
+config(function($routeProvider, $httpProvider, $sceDelegateProvider) {
+	$sceDelegateProvider.resourceUrlWhitelist([
+	      'self',
+	      'http://www.youtube.com/**'
+      ]);
+
 	$routeProvider.
 	when('/', 
 	{
@@ -55,7 +60,7 @@ config(function($routeProvider, $httpProvider) {
 					config: response.config,
 					deferred: deferred
 				}
-				console.debug('Login required');
+				//console.debug('Login required');
 				scope.requests401.push(req);
 				scope.$broadcast('event:loginRequired');
 				return deferred.promise;
@@ -89,8 +94,7 @@ config(function($routeProvider, $httpProvider) {
 	 * Login Required
 	 */
 	 scope.$on('event:loginRequired', function () {
-		 console.debug('foo');
-	 	scope.openMessageBox();
+		scope.openMessageBox();
 	 });
 
 	/**

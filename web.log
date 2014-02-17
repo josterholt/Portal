@@ -1,13 +1,32 @@
+3 Jan 03:57:32 - [33m[nodemon] v0.7.10[0m
+3 Jan 03:57:32 - [33m[nodemon] to restart at any time, enter `rs`[0m
+3 Jan 03:57:32 - [32m[nodemon] watching: /var/www/portal[0m
+3 Jan 03:57:32 - [32m[nodemon] starting `node web.js`[0m
+mongodb://localhost/portal
+Listing to 5000
 Connected to DB
-[90mGET /services/post/list [31m500 [90m12ms - 587b[0m
-[90mGET /login [32m200 [90m12ms - 9b[0m
-[90mGET /services/post/list [32m200 [90m2ms - 3b[0m
-51d5c40245e2ea1d10000002
-51d5c48afd84b62911000001
-51d5c4a69fdf9a3411000001
-51d5c4eba7c8364111000001
-51d5c516960d914c11000001
-51d5c533f4da285811000001
-51d5ca4f54b9193f12000001
-51d5cb92e877516712000001
-51d5cceff9f38d7912000001
+[90mGET / [36m304 [90m9ms[0m
+[90mGET /styles/main.css [36m304 [90m4ms[0m
+[90mGET /js/mongolab.js [36m304 [90m4ms[0m
+[90mGET /js/app.js [36m304 [90m8ms[0m
+[90mGET /js/controllers.js [36m304 [90m9ms[0m
+[90mGET /js/services.js [36m304 [90m9ms[0m
+[90mGET /js/directives.js [36m304 [90m10ms[0m
+[90mGET /js/breeze.min.js [36m304 [90m1ms[0m
+[90mGET /js/q.min.js [36m304 [90m1ms[0m
+[90mGET /js/models.js [36m304 [90m0ms[0m
+[90mGET /images/facebook-icon.jpg [36m304 [90m1ms[0m
+[90mGET /partials/index.html [36m304 [90m0ms[0m
+Getting tag
+[90mGET /partials/status/list.html [36m304 [90m10ms[0m
+[90mGET /services/tag [32m200 [90m61ms - 214b[0m
+[90mGET /favicon.ico [36m302 [90m27ms - 48b[0m
+[90mGET /partials/status/form.html [36m304 [90m5ms[0m
+[90mGET /%7B%7Bpost.user.photo%7D%7D [36m302 [90m26ms - 64b[0m
+[90mGET /services/post?limit=10&offset=0&type=post [36m304 [90m50ms[0m
+[90mGET / [36m304 [90m7ms[0m
+[90mGET /%7B%7Bcomment.user.photo%7D%7D [36m302 [90m30ms - 67b[0m
+[90mGET / [36m304 [90m0ms[0m
+[90mGET / [36m304 [90m1ms[0m
+3 Jan 03:57:52 - [1;31m[nodemon] app crashed - waiting for file changes before starting...[0m
+3 Jan 03:58:20 - [nodemon] exiting

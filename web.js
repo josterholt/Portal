@@ -12,6 +12,8 @@ var async = require("async");
 var MongoStore = require("connect-mongo")(express);
 var Entities = require('./entities.js');
 
+
+
 /**
 * App Config
 */
@@ -43,50 +45,75 @@ app.use(express.session({
 /**
 *  Facebook init
 */
-var Facebook = require('facebook-node-sdk');
+//var Facebook = require('facebook-node-sdk');
+//app.use(Facebook.middleware({ appId: '217293819917', secret: '1699a6a5a690aa1fe197647fa0d27856' }));
 
-app.use(Facebook.middleware({ appId: '217293819917', secret: '1699a6a5a690aa1fe197647fa0d27856' }));
+var passport = require('passport'),
+	FacebookStrategy = require('passport-facebook').Strategy;
+app.use(passport.initialize());
+app.use(passport.session());
+
+passport.serializeUser(function(user, done) {
+	done(null, user);
+})
+passport.deserializeUser(function(obj, done) {
+	done(null, obj);
+})
+passport.use(new FacebookStrategy({
+	clientID: '217293819917',
+	clientSecret: '1699a6a5a690aa1fe197647fa0d27856',
+	callbackURL: '/fb-callback'
+},
+function(accessToken, refreshToken, data, done) {
+	console.log('Callback function');
+
+	Entities.user.find({ facebook_id: data.id }, function (err, docs) {
+		if(docs.length == 0)
+		{
+			// If it doesn't exist create new user. Make sure email is unique
+			Entities.user.find({ email: data.email }, function (err, emailcheck) {
+				if(emailcheck.length != 0)
+				{
+					console.log('A user already exists with this e-mail');
+					// Throw error, user already exists
+				} else {
+					var user = new Entities.user({
+						first_name: data.first_name,
+						last_name: data.last_name,
+						email: data.email,
+						photo: 'http://graph.facebook.com/' + data.id + '/picture',
+						_facebook_id: data.id
+					})
+					user.save(function (err) {
+						if(err) {
+							console.log("Error saving user");
+						}
+						console.log('User Saved');
+						done(null, user);
+					})
+				}
+
+			})
+		} else {
+			console.log('User found');
+			done(null, docs[0])
+		}
+	});
+}))
+
 
 /**
 * Routing
 */
-app.get('/fb-login', Facebook.loginRequired(), function (req, res) {
-	req.facebook.api('/me', function (err, data) {
-		// Lookup user with facebook id
-		Entities.user.find({ facebook_id: data.id }, function (err, docs) {
-			if(docs.length == 0)
-			{
-				// If it doesn't exist create new user. Make sure email is unique
-				Entities.user.find({ email: data.email }, function (err, emailcheck) {
-					if(emailcheck.length != 0)
-					{
-						console.log('A user already exists with this e-mail');
-						// Throw error, user already exists
-					} else {
-						var user = new Entities.user({
-							first_name: data.first_name,
-							last_name: data.last_name,
-							email: data.email,
-							photo: 'http://graph.facebook.com/' + data.id + '/picture',
-							_facebook_id: data.id
-						})
-						user.save(function (err) {
-							if(err) {
-								console.log("Error saving user");
-							}
-							req.session.user = user;
-							res.redirect('/');
-						})
-					}
+app.get('/fb-login', passport.authenticate('facebook'));
 
-				})
-			} else {
-				req.session.user = docs[0];
-				res.redirect('/');
-			}
-		});
-	});
-});
+app.get('/fb-callback', passport.authenticate('facebook', { failureRedirect: '/' }),
+ function (req, res) {
+	console.log('callback');
+	console.log(req.user);
+	req.session.user = req.user;
+	res.redirect('/');
+})
 
 function requireUser(req, res) {
 	if(req.session.user == undefined)
@@ -129,6 +156,49 @@ app.get('/services/profile', function(req, res) {
 	res.send(req.session.user);
 });
 
+app.get('/services/process-media', function (req, res) {
+	var http = require("http");
+	var url_parts = req.query.url.replace("http://", "").split("/");
+	var host = url_parts.shift();
+	var path = url_parts.join("/");
+
+	var options = {
+		method: 'GET',
+		hostname: host,
+		port: 80,
+		path: "/" + path
+	}
+
+	var httpreq = http.get(req.query.url, function (httpres) {
+		switch(httpres.headers['content-type']) {
+			case 'image/jpeg':
+			case 'image/png':
+			case 'image/jpg':
+			case 'image/gif':
+				res.setHeader('Content-Type', httpres.headers['content-type']);
+				//res.send(httpres)
+				break;
+			// case 'video':
+			// break;
+			default:
+				res.send(404);
+				return;
+				break;
+		}
+		httpres.pipe(res);
+
+/*		httpres.on("data", function(chunk) {
+			res.write(chunk);
+		})
+		httpres.on("end", function () {
+			res.end();
+		})*/
+	}).on('error', function (e) {
+		console.log(e);
+		res.send(404);
+	})
+});
+
 app.post('/services/comment', function(req, res) {
 	Entities.post.findById(req.body.post, function (err, doc) {
 		if(err) {
@@ -139,7 +209,8 @@ app.post('/services/comment', function(req, res) {
 		doc.comments.push({
 			user: req.session.user._id,
 			body: req.body.comment,
-			create_date: new Date()
+			create_date: new Date(),
+			mod_date: new Date()
 		});
 		console.log(doc);
 		doc.save(function (err) {
