@@ -67,6 +67,9 @@ passport.use(new FacebookStrategy({
 function(accessToken, refreshToken, data, done) {
 	console.log('Callback function');
 
+	console.log("********")
+	console.log("Email: " + data.email);
+	console.log("********")
 	Entities.user.find({ facebook_id: data.id }, function (err, docs) {
 		console.log('User search 1 complete...');
 		console.log('Records found: ' + docs.length);
