@@ -79,33 +79,54 @@ function(accessToken, refreshToken, data, done) {
 		{
 			// If it doesn't exist create new user. Make sure email is unique
 			console.log('User search 2...');
-			Entities.user.find({ email: data.email }, function (err, emailcheck) {
-				console.log('User search 2 complete...');
-				if(emailcheck.length != 0)
-				{
-					console.log('A user already exists with this e-mail');
-					// Throw error, user already exists
-				} else {
-					console.log('Creating new user...');
-					var user = new Entities.user({
-						first_name: data.first_name,
-						last_name: data.last_name,
-						email: data.email,
-						photo: 'http://graph.facebook.com/' + data.id + '/picture',
-						_facebook_id: data.id
-					})
+			if(data.email == undefined) {
+				var user = new Entities.user({
+					first_name: data.first_name,
+					last_name: data.last_name,
+					email: null,
+					photo: 'http://graph.facebook.com/' + data.id + '/picture',
+					_facebook_id: data.id
+				})
 
-					console.log('Saving user...');
-					user.save(function (err) {
-						if(err) {
-							console.log("Error saving user");
-						}
-						console.log('User Saved');
-						done(null, user);
-					})
-				}
+				console.log('Saving user...');
+				user.save(function (err) {
+					if(err) {
+						console.log("Error saving user");
+					}
+					console.log('User Saved');
+					done(null, user);
+				})
 
-			})
+			} else {
+				Entities.user.find({ email: data.email }, function (err, emailcheck) {
+					console.log('User search 2 complete...');
+					if(emailcheck.length != 0)
+					{
+						console.log('A user already exists with this e-mail');
+						// Throw error, user already exists
+						done({ msg: "User Exists" });
+					} else {
+						console.log('Creating new user...');
+						var user = new Entities.user({
+							first_name: data.first_name,
+							last_name: data.last_name,
+							email: data.email,
+							photo: 'http://graph.facebook.com/' + data.id + '/picture',
+							_facebook_id: data.id
+						})
+
+						console.log('Saving user...');
+						user.save(function (err) {
+							if(err) {
+								console.log("Error saving user");
+							}
+							console.log('User Saved');
+							done(null, user);
+						})
+					}
+
+				})
+			}
 		} else {
 			console.log('User found');
 			done(null, docs[0])
