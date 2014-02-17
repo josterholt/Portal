@@ -66,6 +66,7 @@ passport.use(new FacebookStrategy({
 },
 function(accessToken, refreshToken, data, done) {
 	console.log('Callback function');
+	console.log(data);
 
 	console.log("********")
 	console.log("Email: " + data.email);
